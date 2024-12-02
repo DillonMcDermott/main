@@ -38,29 +38,29 @@
       vertexShader,
       fragmentShader,
       uniforms: {
-        lightPosition: { value: new THREE.Vector3(0, 5, 5) } // Initial light position
+        lightPosition: { value: new THREE.Vector3(0, 0, 2) }
       }
     });
 
     // Cube Mesh and Scaling
     const cube = new THREE.Mesh(geometry, material);
-    cube.scale.set(2, 2, 2);  // Make the cube bigger by scaling
+    cube.scale.set(2, 2, 2);
     scene.add(cube);
 
     // Create a small sphere to represent the light source
-    const lightGeometry = new THREE.SphereGeometry(0.2, 8, 8); // Small sphere for the light source
-    const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 }); // Yellow color for the light sphere
+    const lightGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+    const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     const lightSphere = new THREE.Mesh(lightGeometry, lightMaterial);
-    scene.add(lightSphere); // Add the light sphere to the scene
+    scene.add(lightSphere);
 
     // Position Camera
-    camera.position.set(0, 0, 5);  // Initially place the camera on the Z-axis
+    camera.position.set(0, 0, 5);
 
     // Variables for camera rotation and light position
     let angleX = 0;
     let angleY = 0;
-    const radius = 5; // Distance of the camera from the cube (radius of the rotation)
-    const lightSpeed = 0.1; // Speed of light movement
+    const radius = 5;
+    const lightSpeed = 0.1;
 
     // Animation Loop
     function animate() {
@@ -78,18 +78,18 @@
 
     // Handle Arrow Key Controls to change camera view (rotate camera around the cube)
     window.addEventListener('keydown', (event) => {
-      const rotationStep = 0.05;  // Step size for camera rotation
-      const light = material.uniforms.lightPosition.value; // Light position
+      const rotation = 0.05;
+      const light = material.uniforms.lightPosition.value;
 
       // Rotate camera based on arrow keys
       if (event.key === 'ArrowUp') {
-        angleX += rotationStep;  // Rotate up
+        angleX += rotation;  // Rotate up
       } else if (event.key === 'ArrowDown') {
-        angleX -= rotationStep;  // Rotate down
+        angleX -= rotation;  // Rotate down
       } else if (event.key === 'ArrowLeft') {
-        angleY += rotationStep;  // Rotate left
+        angleY += rotation;  // Rotate left
       } else if (event.key === 'ArrowRight') {
-        angleY -= rotationStep;  // Rotate right
+        angleY -= rotation;  // Rotate right
       }
 
       // Move light using WASD keys
@@ -101,17 +101,21 @@
         light.x -= lightSpeed; // Move light left
       } else if (event.key === 'd') {
         light.x += lightSpeed; // Move light right
+      } else if (event.key == 'e') {
+        light.z += lightSpeed; // Move light forward
+      } else if (event.key == 'q') {
+        light.z -= lightSpeed; // Move light backward
       }
 
       // Update the position of the light sphere
-      lightSphere.position.copy(light); // Move the light sphere to the light's position
+      lightSphere.position.copy(light);
 
-      // Update camera position to rotate around the cube using spherical coordinates
+      // Update camera position to rotate around the cube
       camera.position.x = radius * Math.sin(angleY) * Math.cos(angleX);
       camera.position.y = radius * Math.sin(angleX);
       camera.position.z = radius * Math.cos(angleY) * Math.cos(angleX);
 
-      camera.lookAt(scene.position); // Keep the camera focused on the cube
+      camera.lookAt(scene.position);
     });
   </script>
 </body>

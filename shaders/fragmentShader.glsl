@@ -7,19 +7,36 @@ void main() {
   vec3 lightDir = normalize(vLightDirection);
   vec3 normal = normalize(vNormal);
 
-  // Calculate dot product between light direction and normal
+  // Calculate the dot product between the light direction and the normal
   float diff = max(dot(normal, lightDir), 0.0);  // Diffuse lighting
 
-  // Use the diffuse factor to adjust the color
+  // Assign different colors for each face of the cube
   vec4 color;
-
-  if (diff > 0.0) {
-    // Light side of the cube (show full color)
-    color = vec4(abs(vPosition), 1.0); // Color based on position
+  
+  // Determine color based on the normal (which face of the cube it is)
+  if (abs(normal.x) > abs(normal.y) && abs(normal.x) > abs(normal.z)) {
+    // X axis face
+    if (normal.x > 0.0) {
+      color = vec4(1.0, 0.0, 0.0, 1.0); // Red for +X face
+    } else {
+      color = vec4(0.0, 1.0, 0.0, 1.0); // Green for -X face
+    }
+  } else if (abs(normal.y) > abs(normal.x) && abs(normal.y) > abs(normal.z)) {
+    // Y axis face
+    if (normal.y > 0.0) {
+      color = vec4(0.0, 0.0, 1.0, 1.0); // Blue for +Y face
+    } else {
+      color = vec4(1.0, 1.0, 0.0, 1.0); // Yellow for -Y face
+    }
   } else {
-    // Dark side of the cube (no light)
-    color = vec4(0.0, 0.0, 0.0, 1.0); // Black color for the dark side
+    // Z axis face
+    if (normal.z > 0.0) {
+      color = vec4(1.0, 0.0, 1.0, 1.0); // Magenta for +Z face
+    } else {
+      color = vec4(0.0, 1.0, 1.0, 1.0); // Cyan for -Z face
+    }
   }
 
-  gl_FragColor = color * diff;  // Apply lighting intensity (diffuse)
+  // Apply the diffuse lighting factor (darkens or brightens based on the light)
+  gl_FragColor = color * diff;  // Multiply the color by the lighting intensity
 }
