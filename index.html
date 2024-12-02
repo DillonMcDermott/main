@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Three.js WebGL Shader</title>
+  <title>Three.js Phantom Cube</title>
   <style>
     body {
       margin: 0;
@@ -29,28 +29,42 @@
     document.body.appendChild(renderer.domElement);
 
     // Load shaders and create material
-    const vertexShader = await loadShader('vertexShader.glsl');
-    const fragmentShader = await loadShader('fragmentShader.glsl');
+    const vertexShader = await loadShader('shaders/vertexShader.glsl');
+    const fragmentShader = await loadShader('shaders/fragmentShader.glsl');
 
-    // Geometry and Material
+    // Geometry and Material for the Cube
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
+      uniforms: {
+        lightPosition: { value: new THREE.Vector3(0, 5, 5) } // Initial light position
+      }
     });
 
-    // Mesh
+    // Cube Mesh and Scaling
     const cube = new THREE.Mesh(geometry, material);
+    cube.scale.set(2, 2, 2);  // Make the cube bigger by scaling
     scene.add(cube);
 
+    // Create a small sphere to represent the light source
+    const lightGeometry = new THREE.SphereGeometry(0.2, 8, 8); // Small sphere for the light source
+    const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 }); // Yellow color for the light sphere
+    const lightSphere = new THREE.Mesh(lightGeometry, lightMaterial);
+    scene.add(lightSphere); // Add the light sphere to the scene
+
     // Position Camera
-    camera.position.z = 5;
+    camera.position.set(0, 0, 5);  // Initially place the camera on the Z-axis
+
+    // Variables for camera rotation and light position
+    let angleX = 0;
+    let angleY = 0;
+    const radius = 5; // Distance of the camera from the cube (radius of the rotation)
+    const lightSpeed = 0.1; // Speed of light movement
 
     // Animation Loop
     function animate() {
       requestAnimationFrame(animate);
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
       renderer.render(scene, camera);
     }
     animate();
@@ -60,6 +74,44 @@
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Handle Arrow Key Controls to change camera view (rotate camera around the cube)
+    window.addEventListener('keydown', (event) => {
+      const rotationStep = 0.05;  // Step size for camera rotation
+      const light = material.uniforms.lightPosition.value; // Light position
+
+      // Rotate camera based on arrow keys
+      if (event.key === 'ArrowUp') {
+        angleX += rotationStep;  // Rotate up
+      } else if (event.key === 'ArrowDown') {
+        angleX -= rotationStep;  // Rotate down
+      } else if (event.key === 'ArrowLeft') {
+        angleY += rotationStep;  // Rotate left
+      } else if (event.key === 'ArrowRight') {
+        angleY -= rotationStep;  // Rotate right
+      }
+
+      // Move light using WASD keys
+      if (event.key === 'w') {
+        light.y += lightSpeed; // Move light up
+      } else if (event.key === 's') {
+        light.y -= lightSpeed; // Move light down
+      } else if (event.key === 'a') {
+        light.x -= lightSpeed; // Move light left
+      } else if (event.key === 'd') {
+        light.x += lightSpeed; // Move light right
+      }
+
+      // Update the position of the light sphere
+      lightSphere.position.copy(light); // Move the light sphere to the light's position
+
+      // Update camera position to rotate around the cube using spherical coordinates
+      camera.position.x = radius * Math.sin(angleY) * Math.cos(angleX);
+      camera.position.y = radius * Math.sin(angleX);
+      camera.position.z = radius * Math.cos(angleY) * Math.cos(angleX);
+
+      camera.lookAt(scene.position); // Keep the camera focused on the cube
     });
   </script>
 </body>
